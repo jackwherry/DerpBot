@@ -4,9 +4,12 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import io.github.cdimascio.dotenv.Dotenv;
+import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 import java.util.Random;
+
+import static discord4j.core.event.EventDispatcher.log;
 
 public class DerpBot {
     // Get the bot token from the .env file
@@ -35,7 +38,7 @@ public class DerpBot {
     static final MessageDispatcher dispatcher = new MessageDispatcher(pathToData);
 
     public static void main(String[] args) {
-        gateway.on(MessageCreateEvent.class).subscribe(event -> {
+        gateway.on(MessageCreateEvent.class).flatMap(event -> {
             Message message = event.getMessage();
             String messageContent = message.getContent();
             MessageChannel channel = message.getChannel().block();
@@ -54,7 +57,11 @@ public class DerpBot {
                     Objects.requireNonNull(channel).createMessage(response).block();
                 }
             }
-        });
+            return Mono.empty();
+        }).onErrorResume(error -> {
+            log.error("Failed to handle event: ", error);
+            return Mono.empty();
+        }).subscribe();
 
         gateway.onDisconnect().block();
     }

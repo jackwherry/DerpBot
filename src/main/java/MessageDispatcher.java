@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class MessageDispatcher {
     private ArrayList<Trigger> triggers = new ArrayList<>();
@@ -95,7 +96,7 @@ class Trigger {
     }
 
     private boolean test(String input) {
-        return input.contains(triggerPhrase);
+        return input.toUpperCase(Locale.ROOT).contains(triggerPhrase.toUpperCase(Locale.ROOT));
     }
 
     public String respond(String input) {
