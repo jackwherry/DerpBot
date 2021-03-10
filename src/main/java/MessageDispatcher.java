@@ -54,6 +54,18 @@ public class MessageDispatcher {
 // A Trigger is a phrase that elicits one or more Responses
 class Trigger {
     private String triggerPhrase = "";
+
+    // Percent chance that the triggerPhrase triggers a response
+    private int affinity = 100;
+
+    public int getAffinity() {
+        return affinity;
+    }
+
+    public void setAffinity(int affinity) {
+        this.affinity = affinity;
+    }
+
     private ArrayList<Response> responses = new ArrayList<>();
 
     public Trigger(String triggerPhrase, ArrayList<Response> responses) {
@@ -88,6 +100,9 @@ class Trigger {
 
     public String respond(String input) {
         if (!test(input)) return null;
+
+        // Implement the affinity system so that a response is not issued 100% of the time
+        if (this.affinity < DerpBot.rand.nextInt(100)) return null;
 
         // Implement a lottery system
         // Also potentially inefficient like the searching system
