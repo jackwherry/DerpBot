@@ -19,6 +19,10 @@ public class DerpBot {
     // NOTE: The JSON file is assumed to be in the resources directory
     static final String pathToData = getEnv("PATH_TO_JSON");
 
+    // Get the global affinity
+    // Larger values decrease the odds that responses are sent
+    static final int globalAffinity = Integer.parseUnsignedInt(getEnv("GLOBAL_AFFINITY"));
+
     static final Random rand = new Random();
 
     // Create and log into the Discord API
@@ -57,5 +61,9 @@ public class DerpBot {
 
     public static String getEnv(String key) {
         return dotenv.get(key);
+    }
+
+    public static int getGlobalAffinity() {
+        return globalAffinity;
     }
 }

@@ -102,7 +102,7 @@ class Trigger {
         if (!test(input)) return null;
 
         // Implement the affinity system so that a response is not issued 100% of the time
-        if (this.affinity < DerpBot.rand.nextInt(100)) return null;
+        if (this.affinity < DerpBot.rand.nextInt(DerpBot.getGlobalAffinity())) return null;
 
         // Implement a lottery system
         // Also potentially inefficient like the searching system
