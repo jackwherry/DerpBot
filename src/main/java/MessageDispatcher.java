@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,10 +8,11 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 
 public class MessageDispatcher {
-    private ArrayList<Trigger> triggers = new ArrayList<Trigger>();
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ArrayList<Trigger> triggers = new ArrayList<>();
 
+    // Load the list of triggers into the singleton class MessageDispatcher
     public MessageDispatcher(String pathToData) {
+        // Need to use ClassLoader setup to access resources directory (so that the data can be baked into a JAR)
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(pathToData).getFile());
         String jsonContent = "";
@@ -23,36 +23,23 @@ public class MessageDispatcher {
             e.printStackTrace();
         }
 
-        ArrayList<Trigger> triggers = new ArrayList<Trigger>();
+        ArrayList<Trigger> triggers = new ArrayList<>();
 
         try {
-            triggers = objectMapper.readValue(jsonContent, new TypeReference<ArrayList<Trigger>>() {
+            ObjectMapper objectMapper = new ObjectMapper();
+            triggers = objectMapper.readValue(jsonContent, new TypeReference<>() {
             });
-        } catch (JsonParseException e) {
-            e.printStackTrace();
         } catch (JsonMappingException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // Exclusively for debugging, to be removed:
-//        ArrayList<Response> testResponseList = new ArrayList<Response>();
-//        testResponseList.add(new Response("That's me!", 1));
-//        triggers.add(new Trigger("Omar", testResponseList));
-//
-//        String triggersAsString = new String();
-//
-//        try {
-//            triggersAsString = objectMapper.writeValueAsString(triggers);
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
-
-
         this.triggers = triggers;
     }
 
+    // Check to see if the most recent message matches any of the trigger words
+    // This might be an inefficient solution if the list of triggers were to grow huge
     public String respond(String input) {
         for (Trigger t : triggers) {
             String output = t.respond(input);
@@ -67,7 +54,7 @@ public class MessageDispatcher {
 // A Trigger is a phrase that elicits one or more Responses
 class Trigger {
     private String triggerPhrase = "";
-    private ArrayList<Response> responses = new ArrayList<Response>();
+    private ArrayList<Response> responses = new ArrayList<>();
 
     public Trigger(String triggerPhrase, ArrayList<Response> responses) {
         this.triggerPhrase = triggerPhrase;
@@ -76,7 +63,7 @@ class Trigger {
 
     public Trigger() {
         this.triggerPhrase = "";
-        this.responses = new ArrayList<Response>();
+        this.responses = new ArrayList<>();
     }
 
     public String getTriggerPhrase() {
@@ -103,7 +90,8 @@ class Trigger {
         if (!test(input)) return null;
 
         // Implement a lottery system
-        ArrayList<Response> basket = new ArrayList<Response>();
+        // Also potentially inefficient like the searching system
+        ArrayList<Response> basket = new ArrayList<>();
         for (Response r : this.responses) {
             for (int i = 0; i < r.getTickets(); i++)
                 basket.add(r);

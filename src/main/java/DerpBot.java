@@ -5,23 +5,30 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import io.github.cdimascio.dotenv.Dotenv;
 
+import java.util.Objects;
 import java.util.Random;
 
 public class DerpBot {
     // Get the bot token from the .env file
     // This file is intentionally not checked into source control
     // Add it at the repository root with a TOKEN=abc123 line
-    static Dotenv dotenv = Dotenv.load();
-    static String token = getEnv("TOKEN");
-    static String pathToData = getEnv("PATH_TO_JSON");
+    static final Dotenv dotenv = Dotenv.load();
+    static final String token = getEnv("TOKEN");
 
-    static Random rand = new Random();
+    // Get the path to the JSON data file
+    // NOTE: The JSON file is assumed to be in the resources directory
+    static final String pathToData = getEnv("PATH_TO_JSON");
 
-    static DiscordClient client = DiscordClient.create(token);
-    static GatewayDiscordClient gateway = client.login().block();
-    static String ownUserId = "Snowflake{" + client.getSelf().block().id() + "}";
+    static final Random rand = new Random();
 
-    static MessageDispatcher dispatcher = new MessageDispatcher(pathToData);
+    // Create and log into the Discord API
+    static final DiscordClient client = DiscordClient.create(token);
+    static final GatewayDiscordClient gateway = client.login().block();
+
+    // Generate a Snowflake ID in string form for the bot's own ID
+    static final String ownUserId = "Snowflake{" + Objects.requireNonNull(client.getSelf().block()).id() + "}";
+
+    static final MessageDispatcher dispatcher = new MessageDispatcher(pathToData);
 
     public static void main(String[] args) {
         gateway.on(MessageCreateEvent.class).subscribe(event -> {
@@ -32,7 +39,7 @@ public class DerpBot {
 
             // Keep this around for debugging
             if ("!ping".equals(messageContent)) {
-                channel.createMessage("Pong!").block();
+                Objects.requireNonNull(channel).createMessage("Pong!").block();
             }
 
             // Prevent looping and self-response vulnerabilities
@@ -40,7 +47,7 @@ public class DerpBot {
                 String response = dispatcher.respond(messageContent);
                 // Avoid a 400: Bad Request error caused by sending an empty message
                 if ((response != null) && (!response.equals(""))) {
-                    channel.createMessage(response).block();
+                    Objects.requireNonNull(channel).createMessage(response).block();
                 }
             }
         });
