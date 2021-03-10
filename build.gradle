@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+group 'com.jackwherry'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.jetbrains:annotations:20.1.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    implementation 'com.discord4j:discord4j-core:3.1.3'
+    compile 'io.github.cdimascio:dotenv-java:2.2.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.2'
+}
+
+test {
+    useJUnitPlatform()
+}
