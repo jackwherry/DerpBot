@@ -58,10 +58,7 @@ public class DerpBot {
                 }
             }
             return Mono.empty();
-        }).onErrorResume(error -> {
-            log.error("Failed to handle event: ", error);
-            return Mono.empty();
-        }).subscribe();
+        }).retry().subscribe();
 
         gateway.onDisconnect().block();
     }
