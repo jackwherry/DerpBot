@@ -1,17 +1,15 @@
-import discord4j.core.DiscordClient;
-import discord4j.core.GatewayDiscordClient;
-import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.channel.MessageChannel;
 import io.github.cdimascio.dotenv.Dotenv;
-import reactor.core.publisher.Mono;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.DiscordApiBuilder;
 
-import java.util.Objects;
 import java.util.Random;
 
-import static discord4j.core.event.EventDispatcher.log;
 
 public class DerpBot {
+    static final Logger logger = LogManager.getLogger();
+
     // Get the bot token from the .env file
     // This file is intentionally not checked into source control
     // Add it at the repository root with a TOKEN=abc123 line
@@ -29,38 +27,30 @@ public class DerpBot {
     static final Random rand = new Random();
 
     // Create and log into the Discord API
-    static final DiscordClient client = DiscordClient.create(token);
-    static final GatewayDiscordClient gateway = client.login().block();
-
-    // Generate a Snowflake ID in string form for the bot's own ID
-    static final String ownUserId = "Snowflake{" + Objects.requireNonNull(client.getSelf().block()).id() + "}";
+    static final DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
 
     static final MessageDispatcher dispatcher = new MessageDispatcher(pathToData);
 
     public static void main(String[] args) {
-        gateway.on(MessageCreateEvent.class).flatMap(event -> {
-            Message message = event.getMessage();
-            String messageContent = message.getContent();
-            MessageChannel channel = message.getChannel().block();
-            String userId = message.getAuthor().get().getId().toString();
-
+        api.addMessageCreateListener(event -> {
             // Keep this around for debugging
-            if ("!ping".equals(messageContent)) {
-                Objects.requireNonNull(channel).createMessage("Pong!").block();
+            if ("!ping".equals(event.getMessageContent())) {
+                event.getChannel().sendMessage("Pong!");
             }
 
-            // Prevent looping and self-response vulnerabilities
-            if (!userId.equals(ownUserId)) {
-                String response = dispatcher.respond(messageContent);
-                // Avoid a 400: Bad Request error caused by sending an empty message
+            // The bot should not respond to its own messages or the messages of other bots
+            if (event.getMessage().getAuthor().isRegularUser()) {
+                String response = dispatcher.respond(event.getMessageContent());
+
+                // Only send messages if they're valid to prevent 400: Bad Request errors
                 if ((response != null) && (!response.equals(""))) {
-                    Objects.requireNonNull(channel).createMessage(response).block();
+                    event.getChannel().sendMessage(response);
                 }
             }
-            return Mono.empty();
-        }).retry().subscribe();
+        });
 
-        gateway.onDisconnect().block();
+        logger.info("Logged into API and created event listener");
+
     }
 
     public static String getEnv(String key) {
