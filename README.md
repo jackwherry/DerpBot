@@ -101,4 +101,4 @@ In this example, assuming that the global affinity is set to 100, a message cont
 
 If the phrase "bot" appears, and a response is triggered, three tickets containing the message "That's me!" are entered into a "hat". One ticket with "You're a bot!" is entered. Each ticket has an equal probability of being selected, meaning that "You're a bot!" will only appear a quarter of the time. Since the phrases "wow" and "eek" each only correspond to one response, the number of tickets for each is irrelevant. 
 
-Another behavior worth noting is that the bot iterates through each trigger phrase starting from the top. In other words, if a message were able to trigger two trigger phrases, the topmost one would be activated. As a result, you should put your most specific phrases near the top and your most general ones at the bottom. 
+Another behavior worth noting is that the bot shuffles the list of trigger phrases on each message received. As a result, the order of phrases in the data file is irrelevant. 

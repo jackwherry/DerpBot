@@ -1,14 +1,19 @@
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
 public class MessageDispatcher {
+    static final Logger logger = LogManager.getLogger();
+
     private ArrayList<Trigger> triggers = new ArrayList<>();
 
     // Load the list of triggers into the singleton class MessageDispatcher
@@ -37,11 +42,15 @@ public class MessageDispatcher {
         }
 
         this.triggers = triggers;
+
+        logger.info("Deserialized triggers");
     }
 
     // Check to see if the most recent message matches any of the trigger words
     // This might be an inefficient solution if the list of triggers were to grow huge
     public String respond(String input) {
+        // Shuffle the list to ensure that anything high in the data file will not appear excessively
+        Collections.shuffle(triggers);
         for (Trigger t : triggers) {
             String output = t.respond(input);
             if (output == null)

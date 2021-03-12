@@ -32,6 +32,7 @@ public class DerpBot {
     static final MessageDispatcher dispatcher = new MessageDispatcher(pathToData);
 
     public static void main(String[] args) {
+        logger.info("Created/loaded global objects and logged into API");
         api.addMessageCreateListener(event -> {
             // Keep this around for debugging
             if ("!ping".equals(event.getMessageContent())) {
@@ -49,7 +50,7 @@ public class DerpBot {
             }
         });
 
-        logger.info("Logged into API and created event listener");
+        logger.info("Created event listener");
 
     }
 
