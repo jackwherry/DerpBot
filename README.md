@@ -7,7 +7,7 @@ I'm aware that there are quite a few Discord bots named "DerpBot"—SEO wasn't e
 
 ## Directory Structure
 
-Add your `.env` and `.data.json` files into the directory tree like this:
+Add your `.env` and `data.json` files into the directory tree like this:
 
 * DerpBot
     * src
