@@ -45,12 +45,6 @@ public class DerpBot {
                 event.getChannel().sendMessage("Invite: " + api.createBotInvite());
             }
 
-            if (("!reload".equals(messageContent)) && (event.getMessage().getAuthor().isBotOwner())) {
-                dispatcher = new MessageDispatcher(pathToData);
-                logger.info("Reloaded triggers following user request");
-                event.getChannel().sendMessage("Reloaded triggers!");
-            }
-
             // The bot should not respond to its own messages or the messages of other bots
             if (event.getMessage().getAuthor().isRegularUser()) {
                 String response = dispatcher.respond(messageContent);
