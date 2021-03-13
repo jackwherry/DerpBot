@@ -39,6 +39,10 @@ public class DerpBot {
                 event.getChannel().sendMessage("Pong!");
             }
 
+            if ("!invite".equals(event.getMessageContent())) {
+                event.getChannel().sendMessage("Invite: " + api.createBotInvite());
+            }
+
             // The bot should not respond to its own messages or the messages of other bots
             if (event.getMessage().getAuthor().isRegularUser()) {
                 String response = dispatcher.respond(event.getMessageContent());
