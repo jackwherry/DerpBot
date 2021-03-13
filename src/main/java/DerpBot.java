@@ -29,23 +29,31 @@ public class DerpBot {
     // Create and log into the Discord API
     static final DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
 
-    static final MessageDispatcher dispatcher = new MessageDispatcher(pathToData);
+    static MessageDispatcher dispatcher = new MessageDispatcher(pathToData);
 
     public static void main(String[] args) {
         logger.info("Created/loaded global objects and logged into API");
         api.addMessageCreateListener(event -> {
+            String messageContent = event.getMessageContent();
+
             // Keep this around for debugging
-            if ("!ping".equals(event.getMessageContent())) {
+            if ("!ping".equals(messageContent)) {
                 event.getChannel().sendMessage("Pong!");
             }
 
-            if ("!invite".equals(event.getMessageContent())) {
+            if ("!invite".equals(messageContent)) {
                 event.getChannel().sendMessage("Invite: " + api.createBotInvite());
+            }
+
+            if (("!reload".equals(messageContent)) && (event.getMessage().getAuthor().isBotOwner())) {
+                dispatcher = new MessageDispatcher(pathToData);
+                logger.info("Reloaded triggers following user request");
+                event.getChannel().sendMessage("Reloaded triggers!");
             }
 
             // The bot should not respond to its own messages or the messages of other bots
             if (event.getMessage().getAuthor().isRegularUser()) {
-                String response = dispatcher.respond(event.getMessageContent());
+                String response = dispatcher.respond(messageContent);
 
                 // Only send messages if they're valid to prevent 400: Bad Request errors
                 if ((response != null) && (!response.equals(""))) {
